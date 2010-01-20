@@ -11,7 +11,7 @@ If you wanna clean up a lot of fake or inactive user's registrations (usually ma
 == Description ==
 
 When your project lives long time, site will get a lot of fake user's registrations (usually made by spammers). 
-This tool will help you to clean this mess up. It can filter, select and delete packs users.
+This tool will help you to clean this mess up. It can filter, select and delete packs of users.
 
 See more information on http://shra.ru/hobbies/plugins/wordpress-inactive-user-deleter/ - plugin home page.
 
@@ -28,7 +28,7 @@ To install this plugin:
 == Screenshots ==
 
 1. Remember, my plugin will never delete user No 1, and will do delete operations 
-only after <last warning>, like that
+only after &lt;last warning&gt;, like that
 
 == Frequently Asked Questions ==
 
