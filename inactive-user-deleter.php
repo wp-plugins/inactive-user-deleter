@@ -4,7 +4,7 @@
 Plugin Name: Inactive User Deleter
 Plugin URI: http://shra.ru/hobbies/plugins/wordpress-inactive-user-deleter/
 Description: When your project lives so long, and site got a lot of fake user's registrations (usually made by spammers). This tool will help you to clean this mess up. You can filter, select and delete users.
-Version: 1.0
+Version: 1.1
 Author: SHRA
 Author URI: http://shra.ru
 */
@@ -38,29 +38,62 @@ function IUD_menu() {
 /* tool - here*/
 function _IUD_tool() {
     global $wpdb, $user_ID;
+
+/*	
+	//testing purposes code
+	//we create here a necessary amount users records to test then their deleting speed.
+	
+	if ($_GET['create_users'] == '1') {
+		IUD_create_arb_user($_GET['n'] ? $_GET['n'] + 0 : 100);
+	}
+	//testing purposes code
+*/
+	$ul = isset($_POST['user_level']) ?  $_POST['user_level'] + 0 : 0;
 ?>
 <div class="wrap">
-<h2><?=__('Inactive users deleter tool.')?></h2>
-<p><?=__('When your project lives so long, site accumulates a lot of fake users (usually it is spammer\'s registrations). This tool will help you to clean this mess up')?>.</p>
-<p><?=__('You can do it manually (one by one) or automatically (be carefull with me, baby :))')?>.</p>
-<h3><?=__('Let\'s do it automatically')?></h3>
-<p><?=__('Choose the criterias, then check the user\'s list that is will displayed. If this list will correct - hit the button &laquo;Kill them all&raquo;')?>.</p>
+<h2><?php echo __('Inactive users deleter tool.')?></h2>
+<p><?php echo __('When your project lives so long, site accumulates a lot of fake users (usually it is spammer\'s registrations). This tool will help you to clean this mess up')?>.</p>
+<p><?php echo __('You can do it manually (one by one) or automatically (be carefull with me, baby :))')?>.</p>
+<h3><?php echo __('Let\'s do it automatically')?></h3>
+<p><?php echo __('Choose the criterias, then check the user\'s list that is will displayed. If this list will correct - hit the button &laquo;Kill them all&raquo;')?>.</p>
 
-<form method="POST" action="">
+<form method="POST" action="" id="inactive-user-deleter-form">
 <input type="hidden" name="op" value="search_users" />
 <table >
-<tr><th><?=__('Criteria')?></th><th align="left"><?=__('Description')?></th></tr>
-<tr><td align="center"><input id="flag_no_approve" type="checkbox" name="no_approve" value="yes" <?=empty($_POST['no_approve']) ? '' : 'checked' ?> /></td><td><label for="flag_no_approve"><?=__('User has no approved comments. User registered, but do nothing on your website. He (or she) has no any approved comments.')?></label></td></tr>
-<tr><td align="center"><input id="flag_has_spam" type="checkbox" name="has_spam" value="yes" <?=empty($_POST['has_spam']) ? '' : 'checked' ?> /></td><td><label for="flag_has_spam"><?=__('User has spam comments')?></label></td></tr>
-<tr><td align="center"><input id="flag_no_recs" type="checkbox" name="no_recs" value="yes" <?=empty($_POST['no_recs']) ? '' : 'checked' ?> /></td><td><label for="flag_no_recs"><?=__('User has no records or posts')?></label></td></tr>
-<!--
-<tr><td><input type="text" size="4" name="lastVisit" value="<?=isset($_POST['lastVisit']) ? intval($_POST['lastVisit']) : 60 ?>" /></td><td><label><?=__('User visited site last time more then XX days ago')?></label></td></tr>
--->
-<tr><td align="center"><input id="flag_daysleft" type="checkbox" name="f_daysleft" value="yes" <?=empty($_POST['f_daysleft']) ? '' : 'checked' ?> /></td><td><label for="flag_daysleft"><?=__('User was created more then')?> <input type="text" size="4" name="daysleft" value="<?=isset($_POST['daysleft']) ? intval($_POST['daysleft']) : 60 ?>" /><?=__('days ago. Set number of days.')?></label></td></tr>
-<tr><td colspan="2" align="right"><input type="submit" size="4" value="<?=__('Search')?>" /></td></tr>
+<tr><th><?php echo __('Criteria')?></th><th align="left"><?php echo __('Description')?></th></tr>
+<tr><td align="center"><input id="flag_no_approve" type="checkbox" name="no_approve" value="yes" <?php echo empty($_POST['no_approve']) ? '' : 'checked' ?> /></td><td><label for="flag_no_approve"><?php echo __('User has no approved comments. User registered, but do nothing on your website. He (or she) has no any approved comments.')?></label></td></tr>
+<tr><td align="center"><input id="flag_has_spam" type="checkbox" name="has_spam" value="yes" <?php echo empty($_POST['has_spam']) ? '' : 'checked' ?> /></td><td><label for="flag_has_spam"><?php echo __('User has spam comments')?></label></td></tr>
+<tr><td align="center"><input id="flag_no_recs" type="checkbox" name="no_recs" value="yes" <?php echo empty($_POST['no_recs']) ? '' : 'checked' ?> /></td><td><label for="flag_no_recs"><?php echo __('User has no records or posts')?></label></td></tr>
+<tr><td align="center"><input id="flag_daysleft" type="checkbox" name="f_daysleft" value="yes" <?php echo empty($_POST['f_daysleft']) ? '' : 'checked' ?> /></td><td><label for="flag_daysleft"><?php echo __('User was created more then')?> <input type="text" size="4" name="daysleft" value="<?php echo isset($_POST['daysleft']) ? intval($_POST['daysleft']) : 60 ?>" /><?php echo __('days ago. Set number of days.')?></label></td></tr>
+<tr><td colspan="2">
+	<label for="user_level"><?php echo __('User level ')?></label>
+	<select name="user_level_eq">
+<?php
+	$columns = array('>=', '<=');
+	foreach($columns as $v) {
+		print '<option value="' . $v . '" ' . ($_POST['user_level_eq'] == $v ? 'selected' : '') . '>' . $v . '</option>';
+	}
+?>
+	</select>
+	<input id="user_level" size="2" maxlength="2" type="text" name="user_level" value="<?php echo $ul?>" />
+	<br /><small><?php echo __('User level == 10 is admin, 0 is nobody.')?></small></td></tr>
+<tr style="border-top: 1px solid #000000">
+	<td align="left" colspan="2">
+		<label for="sort_order"><?php echo __('Sort by column')?></label>
+		<select id="sort_order" name="sort_order" />
+<?php
+	$columns = array('login', 'name', 'userlevel', 'regdate', 'posts', 'spam', 'comments');
+	foreach($columns as $v) {
+		print '<option value="' . $v . '" ' . ($_POST['sort_order'] == $v ? 'selected' : '') . '>' . $v . '</option>';
+	}
+?>
+		</select>
+	</td>
+	</tr>
+<tr><td colspan="2"><input type="submit" size="4" value="<?php echo __('Search')?>" /></td></tr>
 </table>
 
-<?
+<?php 
 
     if (!isset($_POST['op'])) $_POST['op'] = 'stand_by';
 
@@ -93,7 +126,12 @@ function _IUD_tool() {
                         echo 'I will never delete super-user !<br />';
                         continue; //i never will delete admin-user
                     }
-
+					
+					if (get_user_option('wp_user_level', $user_id_to_delete) >= 10) {
+                        echo 'I will never delete user with admin privileges !<br />';
+                        continue; //i never will delete admin-user
+					}
+					
                     wp_delete_user($user_id_to_delete);
                     $cnt_deleted ++;
                 }
@@ -111,31 +149,54 @@ function _IUD_tool() {
         }
     case 'search_users':
         //Ooohh damn, i hate to work!
-        $days = $_POST['daysleft'] + 0;
-        $tmStr = date('Y-m-d H:i:s', time() - $days * 86400);
-        
-//        $lastVisit = time() - (intval($_POST['lastVisit']) + 0) * 86400;
-        
-/*        $query = "
-            SELECT COUNT(WC.comment_ID) as approved, COUNT(WC2.comment_ID) as spam, COUNT(WP.ID) as recs, 
-                WU.ID, WU.user_login as login, WU.user_url as url, WU.user_registered as dt_reg, WU.display_name as name, WUM.meta_value
-            FROM $wpdb->users WU 
-            LEFT JOIN $wpdb->comments WC ON WC.user_id = WU.ID AND WC.comment_approved = 1
-            LEFT JOIN $wpdb->comments WC2 ON WC2.user_id = WU.ID AND WC2.comment_approved = 'spam'
-            LEFT JOIN $wpdb->posts WP ON WP.post_author = WU.ID AND WP.post_type in ('post', 'page') AND post_status = 'publish'
-            LEFT JOIN $wpdb->usermeta WUM ON WUM.user_id = WU.ID AND WUM.meta_key = 'lastvisit'
-            WHERE WU.user_registered < '$tmStr' AND (WUM.meta_value is NULL OR WUM.meta_value > $lastVisit)
-            . "GROUP BY WU.ID, WU.user_login, WU.user_url, WU.user_registered, WU.display_name,  WUM.meta_value
-            ORDER BY WU.user_login";*/
+		$conditions = array();
+		
+		$days = $_POST['daysleft'] + 0;
+		if ($days > 0 && $_POST['f_daysleft'] == 'yes') {
+			$tmStr = date('Y-m-d H:i:s', time() - $days * 86400);
+			$conditions[] = "WU.user_registered < '$tmStr'";
+		}
+		
+		if ($_POST['user_level_eq'] == '>=') {
+			$conditions[] = "(WUM.meta_value >= $ul OR (WUM.meta_value IS NULL AND $ul <= 0))";
+		} else {
+			$conditions[] = "(WUM.meta_value <= $ul OR (WUM.meta_value IS NULL AND $ul >= 0))";
+		}
+		
         $query = "
             SELECT COUNT(WC.comment_ID) as approved, COUNT(WC2.comment_ID) as spam, 
-                WU.ID, WU.user_login as login, WU.user_url as url, WU.user_registered as dt_reg, WU.display_name as name
+                WU.ID, WU.user_login as login, WU.user_url as url, WU.user_registered as dt_reg, 
+				WU.display_name as name,
+				WUM.meta_value as USL
             FROM $wpdb->users WU 
             LEFT JOIN $wpdb->comments WC ON WC.user_id = WU.ID AND WC.comment_approved = 1
             LEFT JOIN $wpdb->comments WC2 ON WC2.user_id = WU.ID AND WC2.comment_approved = 'spam'
-            WHERE 1 " . (empty($_POST['f_daysleft']) ? '' : "AND WU.user_registered < '$tmStr' ")
-        . " GROUP BY WU.ID, WU.user_login, WU.user_url, WU.user_registered, WU.display_name 
-            ORDER BY WU.user_login";
+			LEFT JOIN $wpdb->usermeta WUM ON WUM.user_id = WU.ID AND WUM.meta_key = 'wp_user_level'
+            WHERE " . implode(' AND ' , $conditions) . "
+			GROUP BY WU.ID, WU.user_login, WU.user_url, WU.user_registered, WU.display_name ";
+			
+		switch ($_POST['sort_order']) {
+		case 'name':
+			$sort_order = 'WU.display_name';
+			break;
+		case 'regdate':
+			$sort_order = 'WU.user_registered';
+			break;
+		case 'spam':
+			$sort_order = 'COUNT(WC2.comment_ID) DESC, WU.user_login';		
+			break;
+		case 'userlevel':
+			$sort_order = 'WUM.meta_value DESC, WU.user_login';				
+			break;
+		case 'comments':
+			$sort_order = 'COUNT(WC.comment_ID) DESC, WU.user_login';
+			break;
+		case 'posts':
+		default:
+			$sort_order = 'WU.user_login';
+		}
+		
+		$query .= " ORDER BY $sort_order";
 
         $rows = $wpdb->get_results($query, ARRAY_A);
 
@@ -150,10 +211,11 @@ function _IUD_tool() {
                 $user_list[$UR['ID']] = $UR; 
             }
         
+		//clean up with registration lifetime ctiteria + check user norecs criteria + count publish posts
         $query = "
             SELECT COUNT(WP.ID) as recs, WU.ID
             FROM $wpdb->users WU 
-            LEFT JOIN $wpdb->posts WP ON WP.post_author = WU.ID AND WP.post_type in ('post', 'page') AND post_status = 'publish'
+            LEFT JOIN $wpdb->posts WP ON WP.post_author = WU.ID AND NOT WP.post_type in ('attachment', 'revision') AND post_status = 'publish'
             WHERE 1 " . (empty($_POST['f_daysleft']) ? '' : "AND WU.user_registered < '$tmStr' ") . " GROUP BY WU.ID";
 
         $rows = $wpdb->get_results($query, ARRAY_A);
@@ -165,10 +227,12 @@ function _IUD_tool() {
                 if (!empty($_POST['no_recs']) && $UR['recs']) unset($user_list[$id]);
             }
 
+		//user's list output
         if (empty($user_list)) {
-            echo __('<b>No users are found.</b>');
+            echo __('<p><b>No users are found.</b></p>');
         } else {
-        
+			echo '<p><b>' . count($user_list) . ' ' . __('record(s) are found.') . '</b></p>';
+			
             echo '<hr>' . __('Check this list') . '. <input type="button" value="' . __('Mark all') . '" onclick="
                 var f_elm = this.form[\'f_users[]\'];
                 if (f_elm.length > 0) {
@@ -187,26 +251,50 @@ function _IUD_tool() {
                     this.form.submit();
                 }
             "/>
-            <table cellpadding="3"><tr><th>No.</th><th>' . __('Mark') . '</th><th width="150" align="left">' . __('Login') . '</th><th>' . __('Name') . '</th>
-                <th width="120">' . __('Reg date') . '</th><th>' . __('Published posts') . '</th><th>' . __('Spam comments') . '</th><th>' . __('Approved comments') . '</th></tr>';
+			<style>
+				.clickable {
+					cursor: pointer;
+				}
+			</style>
+            <table cellpadding="3"><tr>
+				<th>No.</th>
+				<th>' . __('Mark') . '</th>
+				<th class="clickable" width="150" align="left" onclick="jQuery(\'#sort_order\').val(\'login\'); jQuery(\'#inactive-user-deleter-form\').submit(); ">' . __('Login') . '</th>
+				<th class="clickable" onclick="jQuery(\'#sort_order\').val(\'name\'); jQuery(\'#inactive-user-deleter-form\').submit(); ">' . __('Name') . '</th>
+                <th class="clickable" onclick="jQuery(\'#sort_order\').val(\'userlevel\'); jQuery(\'#inactive-user-deleter-form\').submit(); ">' . __('User level') . '</th>
+                <th class="clickable" width="120" onclick="jQuery(\'#sort_order\').val(\'regdate\'); jQuery(\'#inactive-user-deleter-form\').submit(); ">' . __('Reg date') . '</th>
+				<th>' . __('Published posts') . '</th>
+				<th class="clickable" onclick="jQuery(\'#sort_order\').val(\'spam\'); jQuery(\'#inactive-user-deleter-form\').submit(); ">' . __('Spam comments') . '</th>
+				<th class="clickable" onclick="jQuery(\'#sort_order\').val(\'comments\'); jQuery(\'#inactive-user-deleter-form\').submit(); ">' . __('Approved comments') . '</th></tr>';
             
             $i = 0;
             foreach($user_list as $UR) {
                 $i++;
                 $color = $i % 2 ? '#FFFFEE' : '#EEFFFF';
-                echo "<tr align=\"center\" style=\"background-color:$color\" ><td>$i.</td><td><input type=\"checkbox\" name=\"f_users[]\" value=\"$UR[ID]\"/ " 
+                echo "<tr align=\"center\" style=\"background-color:$color\" ><td>$i.</td><td>";
+				if ($UR['USL'] >= 10 || $UR['ID'] == 1) {
+					echo "-";
+				} else {
+					echo "<input type=\"checkbox\" name=\"f_users[]\" value=\"$UR[ID]\"/ " 
                 . (isset($_POST['f_users']) && in_array($UR['ID'], $_POST['f_users']) ? 'checked' : '') 
-                . "></td>
+                . ">";
+				}
+				echo "
+					</td>
                     <td align=\"left\">"
                     . (empty($UR['url']) ? $UR['login'] : "<a href=\"$UR[url]\" target=\"_blank\">$UR[login]</a>")
-                    . "</td><td>$UR[name]</td>
-                <td>" . date('d.M.Y', strtotime($UR['dt_reg'])) . "</td><td>$UR[recs]</td><td>$UR[spam]</td><td>$UR[approved]</td></tr>\n";
+                    . "</td><td>$UR[name]</td>"
+					. "</td><td>" . ($UR['USL'] ? $UR['USL'] : '-') . "</td><td>"
+					. date('d M Y', strtotime($UR['dt_reg'])) . "</td><td>" 
+					. ($UR['recs'] ? $UR['recs'] : '-') 
+					. "</td><td>"
+					. ($UR['spam'] ? $UR['spam'] : '-') 
+					. "</td><td>" 
+					. ($UR['approved'] ? $UR['approved'] : '-') 
+					. "</td></tr>\n";
             }
-            ?></table><?
-            //echo "$lastVisit<pre>";
-            //print_r($user_list);
-            //echo "</pre>";
-            
+            ?></table><?php
+           
         }
         
         break;
@@ -215,6 +303,14 @@ function _IUD_tool() {
 ?>
 </form>
 </div>
-<?
- 
+<?php
 }
+
+/* fast user generation routine - only for tests */
+function IUD_create_arb_user($n = 100) {
+	while($n-- > 0) {
+		$asr = rand(1000000, 10000000);
+		wp_create_user('usr_' . $asr, 'pass_'. $asr, $asr . '@mail.ru');
+	}
+}
+?>

@@ -3,8 +3,8 @@ Contributors: shra
 Donate link: http://shra.ru/hobbies/plugins/wordpress-inactive-user-deleter/
 Tags: user management, inactive user, delete user, user deleter
 Requires at least: 2.7
-Tested up to: 2.9.1
-Stable tag: trunk
+Tested up to: 3.4.2
+Stable tag: 1.1
 
 If you wanna clean up a lot of fake or inactive user's registrations (usually made by spammers) by one operation - this tool will help you to do it.
 
@@ -27,8 +27,9 @@ To install this plugin:
 
 == Screenshots ==
 
-1. Remember, my plugin will never delete user No 1, and will do delete operations 
-only after &lt;last warning&gt;, like that
+1. Remember, my plugin will never delete user No 1 or users are having highest user-level 
+(value >= 10 - admin privileges), and will do delete operations only after message like 
+that - &lt;last warning&gt;.
 
 == Frequently Asked Questions ==
 
@@ -36,8 +37,9 @@ No questions were asked yet.
 
 == Changelog ==
 
+= 1.1 = Plugin renovation. Bug fixing, some new options.
 = 1.0 = It was a start version. Everything is new :).
 
 == Upgrade Notice ==
 
-I can give you no upgrade recommendations, cuz it is just the first version!
+No special notes is here for upgrade. Install and enjoy.
